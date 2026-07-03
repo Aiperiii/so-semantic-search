@@ -4,4 +4,5 @@ __pycache__/
 .env
 tempCodeRunnerFile.python
 *.csv
-
+.DS_Store
+tempCodeRunnerFile.py
