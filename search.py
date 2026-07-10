@@ -1,6 +1,7 @@
 import psycopg2
 from tokenizer import tokenize
 from bm25 import bm25_score
+from expansion import expand_token
 
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
@@ -18,15 +19,23 @@ cur.execute("SELECT question_id, dl FROM doc_stats")
 DL = dict(cur.fetchall())
 
 
-def search(query, limit = 10):
+def search(query, limit = 10, expand = True):
     # same tokenizer as the index builder
     tokens = tokenize(query)
+
+    # weighted tokens: user's own words at 1.0, expansions at 0.3
+    weighted = [(tk, 1.0) for tk in tokens]
+    if expand:
+        for tk in tokens:
+            for ex in expand_token(tk):
+                if ex not in tokens:          
+                    weighted.append((ex, 0.3))
 
     # accumulate per-question BM25 score: a question matching several
     # query tokens gets the sum of per-token BM25 scores
     scores = {}
 
-    for tk in tokens:
+    for tk, weight in weighted:
 
         cur.execute("SELECT df FROM token_stats WHERE token = %s", (tk, ))
         row = cur.fetchone()
@@ -39,8 +48,7 @@ def search(query, limit = 10):
         
         for question_id, frequency in rows:
             dl = DL[question_id]
-            
-            scores[question_id] = scores.get(question_id, 0) + bm25_score(frequency, df, N, dl, avgdl)
+            scores[question_id] = scores.get(question_id, 0) + weight * bm25_score(frequency, df, N, dl, avgdl)
     
     # sorted in decreasing order of scores
     scores = sorted(scores.items(), key = lambda x : x[1], reverse = True)
@@ -60,5 +68,9 @@ def search(query, limit = 10):
 
 
 if __name__ == '__main__':
-    for question_id, title, score in search("python list"):
-        print(score, question_id, title)
+    print("--- expand=False ---")
+    for qid, title, score in search("my loop never stops", expand=False):
+        print(f"{score:6.2f}  {title}")
+    print("--- expand=True ---")
+    for qid, title, score in search("my loop never stops", expand=True):
+        print(f"{score:6.2f}  {title}")
