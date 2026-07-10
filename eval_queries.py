@@ -1,3 +1,10 @@
+# rerun with expansion : ~5 queries better, 2-3 worse, rest unchanged.
+# pattern: expansion helps when tokens have specific ecosystems (loop,
+# recursion, join), hurts when tokens are generic (read, line, input) or
+# when the real problem was never vocabulary (language routing, conceptual
+# intent, tokenizer bugs). biggest regression: "read file line by line
+# python" - expansion amplified the wrong-language problem
+
 from search import search
 
 queries = [
@@ -31,5 +38,9 @@ queries = [
 for q in queries:
     print("=" * 60)
     print("QUERY: ", q)
-    for question_id, title, score in search(q, limit = 5):
+    print("  --- without expansion ---")
+    for question_id, title, score in search(q, limit=5, expand=False):
+        print(f"  {score:6.2f}  {title}")
+    print("  --- with expansion ---")
+    for question_id, title, score in search(q, limit=5, expand=True):
         print(f"  {score:6.2f}  {title}")
