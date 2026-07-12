@@ -3,31 +3,23 @@ import psycopg2
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
 
+# load all expansions into a dict once at startup:
+#   {token: [related1, related2, ...]}
+# the table is precomputed by build_expansions.py - computing
+# rankings during every search was costing ~100ms per query
 
-# ranking rule: lift * log(count)
-# lift = observed cooccurrences / expected by chance (df_a * df_b / N)
-#   -> filters out popularity (common words collapse to lift ~1)
-# log(count) = evidence with diminishing returns
+cur.execute("SELECT token, related FROM expansions ORDER BY token, rank;")
+EXPANSIONS = {}
 
-expansion_sql = """
-    SELECT CASE WHEN c.token_a = %s THEN c.token_b ELSE c.token_a END AS other,
-           c.count / (ta.df::numeric * tb.df / 500000) * LN(c.count) AS score
-    FROM cooccurrence c
-    JOIN token_stats ta ON ta.token = c.token_a
-    JOIN token_stats tb ON tb.token = c.token_b
-    WHERE (c.token_a = %s OR c.token_b = %s)
-      AND c.count >= 5
-    ORDER BY score DESC
-    LIMIT %s
-"""
+for token,related in cur.fetchall():
+    EXPANSIONS.setdefault(token, []).append(related)
 
 
 def expand_token(token, top_n = 5):
     """
     return the top_n related tokens for a given token by lift * log(count)
     """
-    cur.execute(expansion_sql, (token,token, token, top_n))
-    return [row[0] for row in cur.fetchall()]
+    return EXPANSIONS.get(token, [])[ : top_n]
 
 
 

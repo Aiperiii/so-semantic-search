@@ -15,6 +15,24 @@
 #   candidate row is the main cost. Still under the 50 ms target.
 #   Odd: "python list" was the slowest warm query (83.8) - probably
 #   noise, check next time.
+#
+ 
+#   Week 4 (query expansion, expand=True is now the default):
+#   First attempt - expansion computed per query with the big
+#   cooccurrence JOIN. warm: avg 136.5 ms, EVERY query paid ~100ms
+#   (even the tiny ones - fastest was 106.5!). That flat cost was
+#   the giveaway: the expansion SQL ran the lift ranking over 1.9M
+#   pairs on every search, recomputing answers that never change.
+
+#   Fix: build_expansions.py precomputes top-5 for every token once
+#   (25,365 rows, 0.3s)
+#   
+#   After fix:
+#   first run: avg 74.7 ms, worst 253.3 ms 
+#   warm: avg 34.1 ms, worst 65.4 ms
+#   So expansion itself costs ~6 ms over BM25 (28.0 -> 34.1) - the
+#   extra index lookups for expanded tokens. Under 50 ms target again.
+#   "python list" back to normal (39.8) - week 3's 83.8 was noise.
 
 
 import time
