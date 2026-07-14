@@ -2,6 +2,7 @@ import psycopg2
 from tokenizer import tokenize
 from bm25 import bm25_score
 from expansion import expand_token
+from classifier import classify_query, LANGUAGES
 
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
@@ -20,11 +21,23 @@ DL = dict(cur.fetchall())
 
 
 def search(query, limit = 10, expand = True):
-    # same tokenizer as the index builder
+    # label saved for later (debug/conceptual strategies).
+    # language boost is on for all query types: naming a language = wanting it.
+    label = classify_query(query)
+
+    # languages(tokens) that are included in the query
+    query_languages = [w for w in query.lower().split() 
+                       if w.strip('?.,!:;()"\'') in LANGUAGES]
+
     tokens = tokenize(query)
 
-    # weighted tokens: user's own words at 1.0, expansions at 0.3
-    weighted = [(tk, 1.0) for tk in tokens]
+    boost_tokens = set()
+    for lang in query_languages:
+        boost_tokens.update(tokenize(lang)) 
+
+    LANG_BOOST = 2.5  # tunable
+    weighted = [(tk, LANG_BOOST if tk in boost_tokens else 1.0) for tk in tokens]
+
     if expand:
         for tk in tokens:
             for ex in expand_token(tk):
@@ -73,4 +86,7 @@ if __name__ == '__main__':
         print(f"{score:6.2f}  {title}")
     print("--- expand=True ---")
     for qid, title, score in search("my loop never stops", expand=True):
+        print(f"{score:6.2f}  {title}")
+    print("-----------")
+    for qid, title, score in search("read file line by line python", limit=20, expand=False):
         print(f"{score:6.2f}  {title}")
