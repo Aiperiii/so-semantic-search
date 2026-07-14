@@ -35,7 +35,8 @@ def search(query, limit = 10, expand = True):
     for lang in query_languages:
         boost_tokens.update(tokenize(lang)) 
 
-    LANG_BOOST = 2.5  # tunable
+    LANG_BOOST = 1.8  # tunable, 2.5 was too strong (language beat topic). A/B test picked 1.8.
+                      # still slightly off on one eval query - good enough for now.
     weighted = [(tk, LANG_BOOST if tk in boost_tokens else 1.0) for tk in tokens]
 
     if expand:
