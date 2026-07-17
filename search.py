@@ -5,7 +5,6 @@ from expansion import expand_token
 from classifier import classify_query, LANGUAGES
 from math import log
 
-
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
 
@@ -27,6 +26,7 @@ VOTES = dict(cur.fetchall())
 
 
 def search(query, limit = 10, expand = True):
+    
     # label does: conceptual -> add votes to score; debug -> no expansion.
     # language boost is on for all query types: naming a language = wanting it.
     label = classify_query(query)
@@ -73,7 +73,6 @@ def search(query, limit = 10, expand = True):
         for question_id, frequency in rows:
             dl = DL[question_id]
             scores[question_id] = scores.get(question_id, 0) + weight * bm25_score(frequency, df, N, dl, avgdl)
-    
     
     VOTE_ALPHA = 0.8   # tunable, same status as 0.3 and 1.8
     if label == 'conceptual':
