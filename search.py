@@ -27,7 +27,7 @@ VOTES = dict(cur.fetchall())
 
 
 def search(query, limit = 10, expand = True):
-    # label saved for later (debug/conceptual strategies).
+    # label does: conceptual -> add votes to score; debug -> no expansion.
     # language boost is on for all query types: naming a language = wanting it.
     label = classify_query(query)
 
@@ -45,7 +45,11 @@ def search(query, limit = 10, expand = True):
                       # still slightly off on one eval query - good enough for now.
     weighted = [(tk, LANG_BOOST if tk in boost_tokens else 1.0) for tk in tokens]
 
-    if expand:
+
+    # debug queries: no expansion. Error words match exactly as written,
+    # so adding guessed words only adds noise (this broke the
+    # "program crashes when input is empty" query in the eval).
+    if expand and label != 'debug':
         for tk in tokens:
             for ex in expand_token(tk):
                 if ex not in tokens:          
@@ -106,5 +110,9 @@ if __name__ == '__main__':
 
     print("-----------")
     for qid, title, score in search("what is a pointer", limit=20, expand=False):
+        print(f"{score:6.2f}  {title}")
+
+    print("-----------")
+    for qid, title, score in search("program crashes when input is empty", limit=20, expand=True):
         print(f"{score:6.2f}  {title}")
 
