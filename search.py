@@ -3,6 +3,8 @@ from tokenizer import tokenize
 from bm25 import bm25_score
 from expansion import expand_token
 from classifier import classify_query, LANGUAGES
+from math import log
+
 
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
@@ -18,6 +20,10 @@ avgdl = float(cur.fetchone()[0])
 # all documents' lengths saved in dict
 cur.execute("SELECT question_id, dl FROM doc_stats")
 DL = dict(cur.fetchall())
+
+# scores of questions
+cur.execute("SELECT id, score FROM questions")
+VOTES = dict(cur.fetchall())
 
 
 def search(query, limit = 10, expand = True):
@@ -64,9 +70,15 @@ def search(query, limit = 10, expand = True):
             dl = DL[question_id]
             scores[question_id] = scores.get(question_id, 0) + weight * bm25_score(frequency, df, N, dl, avgdl)
     
+    
+    VOTE_ALPHA = 0.8   # tunable, same status as 0.3 and 1.8
+    if label == 'conceptual':
+        for qid in scores:
+            scores[qid] += VOTE_ALPHA * log(1 + max(VOTES[qid], 0))
+
     # sorted in decreasing order of scores
     scores = sorted(scores.items(), key = lambda x : x[1], reverse = True)
-    
+
     results = []
     
     # min() guards against queries with fewer matches than limit
@@ -91,3 +103,8 @@ if __name__ == '__main__':
     print("-----------")
     for qid, title, score in search("read file line by line python", limit=20, expand=False):
         print(f"{score:6.2f}  {title}")
+
+    print("-----------")
+    for qid, title, score in search("what is a pointer", limit=20, expand=False):
+        print(f"{score:6.2f}  {title}")
+
