@@ -34,6 +34,35 @@
 #   extra index lookups for expanded tokens. Under 50 ms target again.
 #   "python list" back to normal (39.8) - week 3's 83.8 was noise.
 
+# Week 5 (classifier + language boost + vote blending + no expansion for debug):
+#
+#   First benchmark came back BAD: avg ~97 ms, "python list" over 220 ms.
+#   But none of the new features could explain it - they are all cheap.
+#
+#   How I found the real cause, step by step:
+#   1. Put timers around each stage of search() - all the time was in
+#      the scoring loop.
+#   2. Ran cProfile - 86% of the time was in 34 SQL calls (~7 ms each).
+#      The 20,000 bm25_score() calls cost only 9 ms total, so the math
+#      was never the problem - the database calls were.
+#   3. Ran EXPLAIN ANALYZE on one lookup - found it: the 9,628 rows for
+#      "python" were spread across 7,133 different disk pages, because
+#      the table was built question-by-question but is searched
+#      token-by-token. PostgreSQL had to touch ~1 page per row.
+#
+#   The fix - one command:
+#      CLUSTER inverted_index USING inverted_index_pkey;
+#   This rewrites the table on disk in token order, so each token's rows
+#   sit together. Pages touched for "python": 7,133 -> 53.
+#   One lookup: 28 ms -> 6 ms.
+#
+#   After the fix:
+#   warm: avg 25.3-26.5 ms, worst 49 ms ("why is my recursive function
+#   so slow"). Fastest numbers of the whole project - with every week-5
+#   feature turned on. "python list" now 18 ms, its best ever.
+#
+#   Note: CLUSTER is one-time. If the index is ever rebuilt, run it again
+#   (reminder added in inverted_index.py).
 
 import time
 from search import search
