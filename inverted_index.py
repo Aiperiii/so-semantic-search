@@ -1,6 +1,11 @@
+# after rebuilding this table, run in psql:
+#   CLUSTER inverted_index USING inverted_index_pkey;
+# (rebuilding scatters rows again - see benchmark.py's week 5 notes)
+
 import psycopg2 
 from tokenizer import tokenize
 from collections import Counter
+import time 
 conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
 cur = conn.cursor()
 
@@ -15,6 +20,8 @@ sql_query = """
     """
 cur.execute(sql_query)
 conn.commit()
+
+start = time.perf_counter()
 
 cur.execute("SELECT id, title FROM questions")
 rows = cur.fetchall()
@@ -39,6 +46,8 @@ for i, (question_id, title) in enumerate(rows):
 
 # final commit for the tail      
 conn.commit()
+
+print(f"Index build took {time.perf_counter() - start:.1f} seconds")
 
 cur.close()
 conn.close()
