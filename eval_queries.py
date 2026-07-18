@@ -5,6 +5,12 @@
 # intent, tokenizer bugs). biggest regression: "read file line by line
 # python" - expansion amplified the wrong-language problem
 
+# week 5 rerun: language boost tested at 2.5 (too strong - language beat
+# topic) then 1.8 via A/B - kept 1.8. javascript-remove query still slightly
+# off. vote blending surfaced "Pointer vs. Reference" (the corpus's
+# top-voted pointer question) to #2 - the canonical "what is a pointer"
+# question doesn't exist in this 10% sample.
+
 from search import search
 
 queries = [
@@ -23,7 +29,7 @@ queries = [
     # cat 3 — error style (expect: mixed)
     "list index out of range",
     "cannot read property of undefined",
-    "segmentation fault when accessing array",
+    "segmentation fault in c",
     # cat 4 — conceptual (expect: mixed/fail)
     "difference between list and tuple",
     "when should I use recursion",
