@@ -1,6 +1,6 @@
 from search import search
 from semantic_search import semantic_search
-
+from rerank import rerank 
 # k=60 (the standard default): controls how steeply top ranks dominate.
 # small k -> rank 1 is king; large k -> ranks flatten. tunable, A/B later.
 def hybrid_search(query, limit = 10, k = 60):
@@ -32,10 +32,17 @@ def hybrid_search(query, limit = 10, k = 60):
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     return [(qid, titles[qid], s) for qid, s in ranked[:limit]]
 
+def full_search(query, limit=10):
+    fused = hybrid_search(query, limit=20)   # stage 1: retrieve wide
+    return rerank(query, fused)[:limit]  # stage 2: judge narrow
 
 if __name__ == '__main__':
     for q in ["my loop never stops", "java null pointer exception"]:
         print("=" * 50)
         print("QUERY:", q)
+        print("  --- fused (stage 1) ---")
         for qid, title, s in hybrid_search(q):
+            print(f"  {s:.4f}  {title}")
+        print("  --- reranked (stage 2) ---")
+        for qid, title, s in full_search(q):
             print(f"  {s:.4f}  {title}")
