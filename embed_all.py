@@ -1,3 +1,8 @@
+# full run: 500k titles in 4.9 min at ~1700 titles/sec (Apple Silicon GPU via MPS)
+
+# after a full re-embed from scratch, ensure the HNSW index exists:
+#   SET maintenance_work_mem = '2GB';
+#   CREATE INDEX ON questions USING hnsw (embedding vector_cosine_ops);
 from sentence_transformers import SentenceTransformer, util
 import psycopg2
 from pgvector.psycopg2 import register_vector

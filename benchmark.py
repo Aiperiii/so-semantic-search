@@ -64,6 +64,18 @@
 #   Note: CLUSTER is one-time. If the index is ever rebuilt, run it again
 #   (reminder added in inverted_index.py).
 
+
+# Week 6 (semantic embeddings):
+#   embedded all 500k titles in 4.9 min (~1700/sec - Apple Silicon GPU via
+#   MPS; roadmap budgeted a whole night for CPU).
+#   first semantic search: 1.5-1.9 SECONDS per query - a linear scan
+#   computing cosine distance against all 500k vectors. 
+
+#   Fix: HNSW index (approximate nearest neighbor - trades ~1% recall for
+#   ~25x speed; first deliberately-inexact component in the system).
+#   Build note: default maintenance_work_mem (64MB) too small - postgres
+#   warned mid-build; SET maintenance_work_mem = '2GB' first, then minutes.
+#   After: 69-117 ms per semantic query. Keyword side unchanged at ~25 ms.
 import time
 from search import search
 
