@@ -76,8 +76,27 @@
 #   Build note: default maintenance_work_mem (64MB) too small - postgres
 #   warned mid-build; SET maintenance_work_mem = '2GB' first, then minutes.
 #   After: 69-117 ms per semantic query. Keyword side unchanged at ~25 ms.
+
+# Week 7 (hybrid fusion + cross-encoder re-ranking):
+#   RRF fuses keyword + semantic ranked lists (50 deep each) - scores
+#   discarded, only positions count, agreement wins.
+#   Cross-encoder alone as re-ranker had a measured flaw: it inflates
+#   titles that ECHO the query's wording over titles that answer it
+#   (4 of 20 eval boards, distress-phrased queries). Fix: blend - the
+#   CE's ordering is RRF-fused with stage 1's ordering, so consensus
+#   hedges the judge. Echo residual now bounded to ~3 boards,
+#   ordering-level only.
+#   Full pipeline timing: ~136-191 ms steady state, ~160 typical.
+#   First query of a fresh process pays ~500-1100 ms one-time model
+#   warm-up (candidate fix: warm-up call at server start).
+#   Budget was 200 ms: passing steady-state, tail grazes. Week 9 leads:
+#   run the two engines concurrently (-25-40ms), cache, tame the tail.
+#   Also: c-family tokenizer trigger formally retired this week -
+#   semantic + CE handle c++ natively through the full funnel.
+
 import time
 from search import search
+from hybrid_search import full_search
 
 test_queries  = [
     "python list",                                
@@ -103,3 +122,19 @@ for q in test_queries:
 print(f"\naverage: {sum(timings)/len(timings):.1f} ms")
 print(f"fastest: {min(timings):.1f} ms")
 print(f"slowest: {max(timings):.1f} ms")
+
+print()
+print("--- full pipeline (hybrid + blended rerank) ---")
+from hybrid_search import full_search
+
+pipeline_timings = []
+for q in test_queries:
+    start = time.perf_counter()
+    full_search(q)
+    elapsed = (time.perf_counter() - start) * 1000
+    pipeline_timings.append(elapsed)
+    print(f"{elapsed:8.1f} ms   {q}")
+
+print(f"\naverage: {sum(pipeline_timings)/len(pipeline_timings):.1f} ms")
+print(f"fastest: {min(pipeline_timings):.1f} ms")
+print(f"slowest: {max(pipeline_timings):.1f} ms")
