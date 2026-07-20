@@ -12,6 +12,7 @@
 # question doesn't exist in this 10% sample.
 
 from search import search
+from hybrid_search import hybrid_search, full_search
 
 queries = [
     # cat 1 — exact keyword (expect: good)
@@ -44,9 +45,9 @@ queries = [
 for q in queries:
     print("=" * 60)
     print("QUERY: ", q)
-    print("  --- without expansion ---")
-    for question_id, title, score in search(q, limit=5, expand=False):
-        print(f"  {score:6.2f}  {title}")
-    print("  --- with expansion ---")
-    for question_id, title, score in search(q, limit=5, expand=True):
-        print(f"  {score:6.2f}  {title}")
+    print("  --- fused (stage 1) ---")
+    for qid, title, s in hybrid_search(q, limit=5):
+        print(f"  {s:.4f}  {title}")
+    print("  --- reranked (stage 2) ---")
+    for qid, title, s in full_search(q, limit=5)[:5]:
+        print(f"  {s:.4f}  {title}")
