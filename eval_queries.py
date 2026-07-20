@@ -11,6 +11,20 @@
 # top-voted pointer question) to #2 - the canonical "what is a pointer"
 # question doesn't exist in this 10% sample.
 
+# week 7: (blended pipeline):
+#   - blend holds at scale: echo problem stays bounded to ~3 distress-phrased
+#     boards, ordering-level only, all results still relevant
+#   - c-family trigger RETIRED: "c++ vector vs array" works through the full
+#     funnel (semantic + cross-encoder read c++ natively) - the tokenizer
+#     fix is dead as a task, documented as a limitation superseded by
+#     architecture
+#   - "python 3.9 new features" reclassified: not a tokenizer or semantic
+#     failure - the corpus (2008-2016) simply predates python 3.9.
+#     corpus-coverage case, like the missing canonical pointer question
+#   - note: this file calls hybrid_search/full_search directly, so the
+#     classifier + vote blending only contribute via the keyword list
+#     inside stage 1
+
 from search import search
 from hybrid_search import hybrid_search, full_search
 
@@ -48,6 +62,6 @@ for q in queries:
     print("  --- fused (stage 1) ---")
     for qid, title, s in hybrid_search(q, limit=5):
         print(f"  {s:.4f}  {title}")
-    print("  --- reranked (stage 2) ---")
-    for qid, title, s in full_search(q, limit=5)[:5]:
+    print("  --- reranked (stage 2, blended) ---")
+    for qid, title, s in full_search(q, limit=5):
         print(f"  {s:.4f}  {title}")
