@@ -7,6 +7,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [searched, setSearched] = useState(false)
+  const [mode, setMode] = useState('hybrid')
 
   async function handleSearch() {
     if (query.trim() === '') {
@@ -19,8 +20,9 @@ function App() {
     setError(null)
     setSearched(true)
     try {
+      const endpoint = mode === 'hybrid' ? '/hybrid' : '/search'
       const response = await fetch(
-        `http://127.0.0.1:8000/hybrid?q=${encodeURIComponent(query)}`
+        `http://127.0.0.1:8000${endpoint}?q=${encodeURIComponent(query)}`
       )
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`)
@@ -48,12 +50,16 @@ function App() {
           onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
         />
         <button onClick={handleSearch} disabled={query.trim() === ''}>Search</button>
+        <div className="mode-toggle">
+          <button className={mode === 'keyword' ? 'active' : ''} onClick={() => setMode('keyword')}>Keyword only</button>
+          <button className={mode === 'hybrid' ? 'active' : ''} onClick={() => setMode('hybrid')}>Hybrid + AI rerank</button>
+        </div>
       </div>
-
-      {loading && <p>Searching...</p>}
-      {error && <p>Something went wrong: {error}</p>}
+      
+      {loading && <p className="message">Searching...</p>}
+      {error && <p className="message error">Something went wrong: {error}</p>}
       {searched && !loading && !error && results.length === 0 && (
-        <p>No results found.</p>
+        <p className="message">No results found.</p>
       )}
 
       <div className="results">
