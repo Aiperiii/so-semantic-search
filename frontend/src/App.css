@@ -82,3 +82,21 @@ h1 {
   padding: 4px 10px;
   border-radius: 20px;
 }
+
+@media (max-width: 600px) {
+  .app {
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .search-bar button {
+    width: 100%;
+  }
+}
