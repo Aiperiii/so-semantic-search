@@ -20,7 +20,7 @@ function App() {
     setSearched(true)
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/search?q=${encodeURIComponent(query)}`
+        `http://127.0.0.1:8000/hybrid?q=${encodeURIComponent(query)}`
       )
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`)
