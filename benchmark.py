@@ -94,6 +94,12 @@
 #   Also: c-family tokenizer trigger formally retired this week -
 #   semantic + CE handle c++ natively through the full funnel.
 
+# Week 9 (Redis caching):
+#   identical repeat queries cached 1h. cache miss runs the full pipeline
+#   and stores the JSON result; cache hit skips everything.
+#   measured: first call 609ms (with warmup) -> cached call 2.5ms (~240x).
+#   steady-state miss ~160ms -> hit 2.5ms is ~64x.
+
 import time
 from search import search
 from hybrid_search import full_search
