@@ -30,11 +30,11 @@ if __name__ == '__main__':
         "my c++ segment tree gives wrong answer",   # expect debug
         "read file line by line python",            # expect code
         "what is a pointer",                        # expect conceptual
-        "merge two sorted arrays",                  # expect code
+        "merge two sorted arrays",                  # expect general
         "what is c++?",                             # expect code 
-        "string methods in c++?",
-        "can't find why my code fails" ,
-        "git merge conflict error"                  # expect code
+        "string methods in c++?",                   # expect code 
+        "can't find why my code fails" ,            # expect debug
+        "git merge conflict error"                  # expect debug
     ]
     for q in tests:
         print(f"{classify_query(q):12}  {q}")
