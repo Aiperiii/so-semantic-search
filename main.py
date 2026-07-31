@@ -44,3 +44,10 @@ def search_query(q : str, limit : int  = Query(default=10, ge=1, le=100), expand
     return [{"question_id" : question_id, "title" : title, "score" : score} 
             for question_id, title, score in results]
 
+# warm up the models at startup so the first real request doesn't pay
+# the ~600ms lazy-load cost (embedding + cross-encoder models load on
+# first use). one throwaway query forces them to load during boot.
+@app.on_event("startup")
+def warmup():
+    full_search("warmup query", limit = 1)
+    print("Models warmed up.")
