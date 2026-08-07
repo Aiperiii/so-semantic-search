@@ -1,11 +1,65 @@
+:root {
+  --accent: #0071e3;
+  --accent-dark: #0059b3;
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --line: #d2d2d7;
+  --surface: #ffffff;
+}
+
 .app {
-  max-width: 700px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 64px 24px;
+}
+.mode-section {
+  margin-bottom: 32px;
+}
+
+.mode-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-toggle button {
+  padding: 8px 16px;
+  font-size: 16px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-toggle button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mode-toggle button.active {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.mode-explainer {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 14px;
+  min-height: 20px;
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 600;
   margin-bottom: 24px;
 }
@@ -42,7 +96,7 @@ h1 {
 }
 
 .search-bar button:disabled {
-  background: #d2d2d7;
+  background: var(--accent-dark);
   cursor: not-allowed;
 }
 
@@ -99,28 +153,6 @@ h1 {
   .search-bar button {
     width: 100%;
   }
-}
-
-.mode-toggle {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.mode-toggle button {
-  padding: 6px 14px;
-  font-size: 14px;
-  color: #6e6e73;
-  background: white;
-  border: 1px solid #d2d2d7;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.mode-toggle button.active {
-  color: white;
-  background: #1d1d1f;
-  border-color: #1d1d1f;
 }
 
 .message {

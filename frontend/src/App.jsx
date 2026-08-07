@@ -41,19 +41,28 @@ function App() {
     <div className="app">
       <h1>Stack Overflow Semantic Search</h1>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search 500,000 questions..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
-        />
-        <button onClick={handleSearch} disabled={query.trim() === ''}>Search</button>
+      <div className="mode-section">
+        <span className="mode-label">Search algorithm:</span>
         <div className="mode-toggle">
           <button className={mode === 'keyword' ? 'active' : ''} onClick={() => setMode('keyword')}>Keyword only</button>
           <button className={mode === 'hybrid' ? 'active' : ''} onClick={() => setMode('hybrid')}>Hybrid + AI rerank</button>
         </div>
+        <p className="mode-explainer">
+          {mode === 'keyword'
+            ? 'BM25 keyword ranking — matches on exact words.'
+            : 'BM25 + semantic embeddings, fused and AI-reranked — matches on meaning.'}
+        </p>
+      </div>
+
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search Stack Overflow questions..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
+        />
+        <button className="search-btn" onClick={handleSearch} disabled={query.trim() === ''}>Search</button>
       </div>
       
       {loading && <p className="message">Searching...</p>}
