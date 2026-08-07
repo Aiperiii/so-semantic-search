@@ -9,6 +9,10 @@ start = time.perf_counter()
 cur.execute("DROP TABLE IF EXISTS expansions;")
 
 # for every token, its top-5 related tokens by lift * log(count).
+# lift = observed cooccurrences / expected by chance (df_a * df_b / N)
+#   -> filters out popularity (common words collapse to lift ~1)
+# log(count) = evidence with diminishing returns
+
 # the pair table stores each pair once (alphabetical), so UNION ALL
 # looks at it from both sides: a's partners and b's partners.
 expansions_query = """

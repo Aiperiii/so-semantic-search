@@ -1,6 +1,6 @@
 # after rebuilding this table, run in psql:
 #   CLUSTER inverted_index USING inverted_index_pkey;
-# (rebuilding scatters rows again - see benchmark.py's week 5 notes)g
+# (rebuilding scatters rows again - see benchmark.py's week 5 notes)
 
 import psycopg2 
 from tokenizer import tokenize
