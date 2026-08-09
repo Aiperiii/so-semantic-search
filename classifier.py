@@ -27,15 +27,21 @@ def classify_query(query):
     
 if __name__ == '__main__':
     tests = [
-        "my c++ segment tree gives wrong answer",   # expect debug
-        "read file line by line python",            # expect code
-        "what is a pointer",                        # expect conceptual
-        "merge two sorted arrays",                  # expect general
-        "what is c++?",                             # expect code 
-        "string methods in c++?",                   # expect code 
-        "can't find why my code fails" ,            # expect debug
-        "git merge conflict error"                  # expect debug
+        ("my c++ segment tree gives wrong answer", "debug"),
+        ("read file line by line python", "code"),
+        ("what is a pointer", "conceptual"),
+        ("merge two sorted arrays", "general"),
+        ("what is c++?", "code"),
+        ("string methods in c++?", "code"),
+        ("can't find why my code fails", "debug"),
+        ("git merge conflict error", "debug"),
     ]
-    for q in tests:
-        print(f"{classify_query(q):12}  {q}")
+    correct = 0
+    for q, expected in tests:
+        actual = classify_query(q)
+        status = "✓" if actual == expected else "✗"
+        if actual == expected:
+            correct += 1
+        print(f"{status}  {actual:12}  expected: {expected:12}  {q}")
+    print(f"\nAccuracy: {correct}/{len(tests)} = {correct/len(tests)*100:.0f}%")
 
