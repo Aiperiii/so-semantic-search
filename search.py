@@ -4,8 +4,10 @@ from bm25 import bm25_score
 from expansion import expand_token
 from classifier import classify_query, LANGUAGES
 from math import log
+import os
 
-conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
+DATABASE_URL = os.environ.get("DATABASE_URL", "dbname=stackoverflow user=ajperiakzoltoeva")
+conn = psycopg2.connect(DATABASE_URL)
 cur = conn.cursor()
 
 # total number of documents/questions

@@ -1,9 +1,10 @@
 from sentence_transformers import SentenceTransformer
 import psycopg2
 from pgvector.psycopg2 import register_vector
-
+import os
 model = SentenceTransformer('all-MiniLM-L6-v2')
-conn = psycopg2.connect(dbname = "stackoverflow", user = "ajperiakzoltoeva")
+DATABASE_URL = os.environ.get("DATABASE_URL", "dbname=stackoverflow user=ajperiakzoltoeva")
+conn = psycopg2.connect(DATABASE_URL)
 register_vector(conn)
 cur = conn.cursor()
 
