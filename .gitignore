@@ -6,4 +6,6 @@ tempCodeRunnerFile.python
 *.csv
 .DS_Store
 tempCodeRunnerFile.py
-prof.out
+batch_load.py
+stackoverflow_backup.dump
+
