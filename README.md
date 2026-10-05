@@ -51,7 +51,7 @@ Type a natural-language question and get the ten most relevant Stack Overflow qu
 ```
 
 - **PostgreSQL + pgvector** stores 500k questions and their 384-dim embeddings; an **HNSW index** turns a 1.9 s linear scan into a ~70 ms nearest-neighbour lookup.
-- **Redis** caches identical queries for one hour (~2.5 ms on a repeat).
+- **Redis** caches identical queries for one hour (~5 ms on a repeat).
 - **FastAPI** backend, **React + Vite** frontend.
 
 ---
@@ -68,7 +68,7 @@ Type a natural-language question and get the ten most relevant Stack Overflow qu
 | 100 concurrent requests, 1 worker (cold cache) | p50 144 ms · p95 440 ms |
 | 100 concurrent requests, 4 workers (cold cache) | **p50 51 ms · p95 235 ms** |
 
-Running four uvicorn workers roughly halved latency under concurrent load by handling requests in parallel. With a warm cache — as real traffic has repeated queries — Redis pulls p95 well under 150 ms, since repeat queries return in ~2.5 ms. Throughput measured at ~80–90 requests/sec.
+Running four uvicorn workers roughly halved latency under concurrent load by handling requests in parallel. With a warm cache — as real traffic has repeated queries — Redis pulls p95 well under 150 ms, since repeat queries return in ~5 ms. Throughput measured at ~80–90 requests/sec.
 
 ---
 
